@@ -1,0 +1,28 @@
+{
+  "name": "@sudobility/shapeshyft_api_mcp",
+  "version": "0.1.1",
+  "description": "MCP server for the ShapeShyft API - lets AI assistants describe, configure, and invoke structured-output LLM endpoints",
+  "type": "module",
+  "license": "BUSL-1.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "shapeshyft-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun --minify",
+    "typecheck": "tsc --noEmit",
+    "start": "bun run dist/index.js",
+    "verify": "bun run typecheck && bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  }
+}

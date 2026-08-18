@@ -1,0 +1,16 @@
+{
+  "name": "shapeshyft",
+  "description": "Sudobility's ShapeShyft plugin — MCP tools, documentation resources, and a guided skill for building structured-output LLM endpoints",
+  "owner": {
+    "name": "Sudobility",
+    "email": "support@sudobility.com"
+  },
+  "plugins": [
+    {
+      "name": "shapeshyft",
+      "description": "ShapeShyft structured-output LLM endpoints — build, invoke, debug, and audit them via the ShapeShyft API",
+      "category": "ai",
+      "source": "./"
+    }
+  ]
+}
