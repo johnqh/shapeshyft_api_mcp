@@ -1,5 +1,10 @@
 # ShapeShyft API MCP
 
+> **Git policy — never auto-commit or auto-push.** Leave your work in the working tree.
+> Run `git commit`, `git push`, `gh pr create`, or `scripts/push_all.sh` **only when the user
+> explicitly asks in that turn**. Approval for an earlier change does not carry forward, and
+> finishing a task is not permission to commit it.
+
 MCP (Model Context Protocol) server that describes and drives the ShapeShyft API —
 an LLM structured-output platform — for AI assistants like Claude Code and Claude
 Desktop.
@@ -78,8 +83,19 @@ skills/
 .mcp.json               # MCP server declaration used by the plugin
 ```
 
-The project ships as a Claude Code plugin: `claude plugin add /path/to/shapeshyft_api_mcp`
-installs the MCP server, the documentation resources, and the skill together.
+The project ships as a Claude Code plugin. Install it with
+`claude plugin marketplace add <repo path>` followed by
+`claude plugin install shapeshyft@shapeshyft` — that brings the MCP server, the
+documentation resources, and the skill together. Claude Code copies the
+directory (including `node_modules`) into `~/.claude/plugins/cache/shapeshyft/`,
+so after changing anything here run `claude plugin marketplace update shapeshyft`
+and `claude plugin update shapeshyft@shapeshyft` before the change is live.
+
+**Keep `.claude-plugin/plugin.json` `version` in step with `package.json`.**
+`claude plugin update` compares manifest versions and silently does nothing when
+they match, so an unbumped plugin manifest leaves everyone on a stale copy.
+`push_all.sh` bumps `package.json` only — bump the plugin manifest in the same
+commit.
 `.mcp.json` resolves the server path with `${CLAUDE_PLUGIN_ROOT}` and reads
 `SHAPESHYFT_*` from the user's environment, so no secrets live in the repo.
 
@@ -243,3 +259,7 @@ are hand-mirrored, not generated.
   call time), `src/resources/content.ts` (the API documentation), and
   `skills/shapeshyft-endpoint/` (the workflow). Adding a route means touching all
   three plus `README.md`.
+
+## Git Workflow
+
+- Do not use feature branches for code changes. Always stay on the current branch.

@@ -73,8 +73,25 @@ This makes the MCP tools, the documentation resources, **and** the
 `/shapeshyft-endpoint` skill available in any project.
 
 ```bash
-claude plugin add /path/to/shapeshyft_api_mcp
+# Register this repo as a marketplace, then install the plugin from it
+claude plugin marketplace add /path/to/shapeshyft_api_mcp
+claude plugin install shapeshyft@shapeshyft
 ```
+
+Verify with `claude plugin details shapeshyft@shapeshyft`, which lists the skill
+and the MCP server.
+
+The plugin is installed as a **copy** under
+`~/.claude/plugins/cache/shapeshyft/`, so edits in this repo do not take effect
+until you refresh both the marketplace and the plugin:
+
+```bash
+claude plugin marketplace update shapeshyft
+claude plugin update shapeshyft@shapeshyft
+```
+
+The copy includes `node_modules`, so run `bun install` here before installing or
+updating — the server runs straight from `src/index.ts`.
 
 The plugin is defined by:
 

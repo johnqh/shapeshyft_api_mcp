@@ -1,7 +1,7 @@
 {
   "name": "shapeshyft",
-  "description": "ShapeShyft structured-output LLM endpoints — build, invoke, debug, and audit them via the ShapeShyft API",
-  "version": "0.1.0",
+  "description": "ShapeShyft structured-output LLM endpoints \u2014 build, invoke, debug, and audit them via the ShapeShyft API",
+  "version": "0.1.2",
   "author": {
     "name": "Sudobility",
     "email": "support@sudobility.com"

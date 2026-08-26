@@ -35,6 +35,9 @@
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+// Single source of truth for the version reported in the MCP handshake — a
+// hardcoded literal drifts the moment the package is bumped.
+import pkg from "../package.json" with { type: "json" };
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { configure } from "./client.ts";
 import { readConfigFile } from "./config-file.ts";
@@ -89,7 +92,7 @@ if (!apiKey && !authToken && !projectApiKey) {
 
 const server = new McpServer({
   name: "shapeshyft-api",
-  version: "0.1.0",
+  version: pkg.version,
 });
 
 // Documentation and workflow helpers

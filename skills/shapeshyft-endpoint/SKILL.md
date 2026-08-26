@@ -45,8 +45,9 @@ keys** + **projects** (one caller-facing `sk_live_...` key each) → **endpoints
 | Ops | `get_analytics`, `get_rate_limits`, `get_rate_limit_history`, storage and user tools |
 
 If these tools are unavailable, the MCP server is not connected — tell the user to
-install the plugin (`claude plugin add /path/to/shapeshyft_api_mcp`) or add the
-server to their settings, and stop.
+install the plugin (`claude plugin marketplace add <repo path>` then
+`claude plugin install shapeshyft@shapeshyft`) or add the server to their
+settings, and stop.
 
 ## Prerequisites: Check Before Doing Anything
 
