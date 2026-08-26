@@ -34,6 +34,8 @@ with `shyft_` and does not expire. Hand it to the server and let it remember:
 
 ```
 set_credentials({ apiKey: "shyft_...", persist: true })
+// or, for an unattended agent that should act as the workspace:
+set_credentials({ entityApiKey: "shyftent_...", persist: true })
 ```
 
 That writes `~/.shapeshyft/config.json` (mode 0600), so later sessions start

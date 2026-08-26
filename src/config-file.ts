@@ -19,6 +19,8 @@ import { dirname, join } from "node:path";
 export interface StoredConfig {
   /** Base URL of the API */
   apiUrl?: string;
+  /** Entity API key (shyftent_...) — authenticates as the entity itself */
+  entityApiKey?: string;
   /** Personal API key (shyft_...) for admin routes */
   apiKey?: string;
   /** Project API key (sk_live_...) for AI invocation */
@@ -101,6 +103,7 @@ export function writeConfigFile(patch: StoredConfig): string {
  */
 export function clearStoredCredentials(): string {
   const current = readConfigFile();
+  delete current.entityApiKey;
   delete current.apiKey;
   delete current.projectApiKey;
 

@@ -28,17 +28,21 @@ function describeConfig() {
     apiUrl: cfg.apiUrl,
     entitySlug: cfg.entitySlug ?? null,
     orgPath: cfg.orgPath ?? null,
+    entityApiKey: client.redact(cfg.entityApiKey),
     apiKey: client.redact(cfg.apiKey),
     authToken: client.redact(cfg.authToken),
     projectApiKey: client.redact(cfg.projectApiKey),
     /** Admin tools (entities, projects, endpoints, analytics, ...) */
-    adminToolsReady: Boolean(cfg.apiKey ?? cfg.authToken),
-    /** Creating and revealing API keys — Firebase token only */
+    adminToolsReady: Boolean(cfg.entityApiKey ?? cfg.apiKey ?? cfg.authToken),
+    /** User-scoped routes and API key lifecycle — entity keys are refused here */
+    userToolsReady: Boolean(cfg.apiKey ?? cfg.authToken),
+    /** Creating and revealing personal API keys — Firebase token only */
     canManageApiKeys: Boolean(cfg.authToken),
     /** AI invocation */
     aiToolsReady: Boolean(cfg.projectApiKey),
     configFile: {
       path: configFilePath(),
+      hasEntityApiKey: Boolean(stored.entityApiKey),
       hasApiKey: Boolean(stored.apiKey),
       hasProjectApiKey: Boolean(stored.projectApiKey),
     },
@@ -67,10 +71,17 @@ export function registerConfigTools(server: McpServer) {
       "they want it stored. Without `persist`, values live in memory only and are gone when the " +
       "server exits. Firebase ID tokens expire in about an hour and are never worth persisting.",
     {
+      entityApiKey: z
+        .string()
+        .optional()
+        .describe(
+          "Entity API key (shyftent_...) — acts as the entity itself; cannot reach /users routes " +
+            "or manage API keys"
+        ),
       apiKey: z
         .string()
         .optional()
-        .describe("Personal API key (shyft_...) for admin routes — preferred, does not expire"),
+        .describe("Personal API key (shyft_...) — acts as a user; does not expire"),
       authToken: z
         .string()
         .optional()
@@ -105,6 +116,8 @@ export function registerConfigTools(server: McpServer) {
           // an hour only produces confusing failures later.
           savedTo = writeConfigFile({
             apiUrl: patch.apiUrl === undefined ? undefined : cfg.apiUrl,
+            entityApiKey:
+              patch.entityApiKey === undefined ? undefined : cfg.entityApiKey,
             apiKey: patch.apiKey === undefined ? undefined : cfg.apiKey,
             projectApiKey:
               patch.projectApiKey === undefined ? undefined : cfg.projectApiKey,

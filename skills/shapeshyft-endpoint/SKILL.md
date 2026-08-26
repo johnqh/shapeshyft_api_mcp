@@ -28,13 +28,14 @@ keys** + **projects** (one caller-facing `sk_live_...` key each) → **endpoints
 
 ## MCP Server Used
 
-**shapeshyft-api** — 61 tools over the ShapeShyft REST API.
+**shapeshyft-api** — 65 tools over the ShapeShyft REST API.
 
 | Group | Tools |
 |---|---|
 | Docs | `describe_shapeshyft_api` (sections: overview, routes, data-model, examples, errors, providers) |
 | Config | `get_configuration`, `set_credentials`, `clear_stored_credentials` |
 | Identity & keys | `get_current_user`, `list_api_keys`, `get_api_key`, `create_api_key`, `reveal_api_key`, `update_api_key`, `delete_api_key` |
+| Entity keys | `list_entity_api_keys`, `create_entity_api_key`, `update_entity_api_key`, `revoke_entity_api_key` |
 | Health | `check_api_health`, `get_api_info` |
 | Providers | `list_providers`, `get_provider`, `list_provider_models` |
 | Invocation | `invoke_endpoint`, `preview_endpoint_prompt` |
@@ -66,11 +67,19 @@ is the default. If the URL is not what the user expects (local dev is usually
 Then call `check_api_health({ readiness: true })`. A `503` means the API is up but
 its database is unreachable — report that and stop.
 
-### 2. A personal API key (Flows A, C, D — and most of B)
+### 2. An API key (Flows A, C, D — and most of B)
 
-Everything that reads or changes configuration needs a credential. The one to use
-is a **personal API key** (`shyft_...`): unlike a Firebase ID token, it does not
-expire, so it survives across sessions.
+Everything that reads or changes configuration needs a credential. Two kinds work
+and neither expires, so both survive across sessions:
+
+- a **personal API key** (`shyft_...`) — acts as *you*, and can reach everything
+- an **entity API key** (`shyftent_...`) — acts as the *workspace*, so it keeps
+  working when you leave the org. It cannot reach `/users/...` routes or manage
+  API keys; both answer `403`. Use it for CI and unattended agents.
+
+`get_configuration` distinguishes them: `adminToolsReady` covers entity-scoped
+tools, `userToolsReady` the ones an entity key cannot perform. To manage entity
+keys themselves, see the `shapeshyft-providers` skill.
 
 `get_configuration` reports `adminToolsReady` and whether
 `~/.shapeshyft/config.json` already holds a key. **If it does, you are done — do

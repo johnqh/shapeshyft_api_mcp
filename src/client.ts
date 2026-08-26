@@ -4,10 +4,13 @@
  *
  *  - Admin routes (`/api/v1/entities/*`, `/api/v1/users/*`, `/api/v1/ratelimits/*`,
  *    `/api/v1/invitations/*`) accept either credential:
- *      1. A **personal API key** (`shyft_...`) sent as `X-API-Key`. Preferred —
- *         it does not expire, so an MCP session keeps working.
- *      2. A **Firebase ID token** sent as `Authorization: Bearer`. Required for
- *         the two operations that hand back a secret (creating and revealing
+ *      1. An **entity API key** (`shyftent_...`) sent as `X-API-Key`. Acts as the
+ *         entity itself, so it keeps working when the member who created it
+ *         leaves. Cannot reach `/users/*` or manage API keys.
+ *      2. A **personal API key** (`shyft_...`) sent as `X-API-Key`. Acts as a
+ *         user; does not expire, so an MCP session keeps working.
+ *      3. A **Firebase ID token** sent as `Authorization: Bearer`. Required for
+ *         the operations that hand back a secret (creating and revealing
  *         API keys), which the API refuses from key-authenticated callers.
  *  - AI routes (`/api/v1/ai/*`) authenticate with a **project API key**
  *    (`sk_live_...`): `Authorization: Bearer <project-api-key>`.
@@ -23,6 +26,8 @@
 export interface ClientConfig {
   /** Base URL of the API, e.g. https://api.shapeshyft.ai or http://localhost:3000 */
   apiUrl: string;
+  /** Entity API key (shyftent_...) — authenticates as the entity itself */
+  entityApiKey?: string | undefined;
   /** Personal API key (shyft_...) for admin routes — preferred, never expires */
   apiKey?: string | undefined;
   /** Firebase ID token for admin routes, and required for create/reveal of API keys */
@@ -38,11 +43,18 @@ export interface ClientConfig {
 /**
  * Auth scheme to use for a request.
  *  - `admin`         personal API key if available, otherwise the Firebase token
+ *  - `user`          personal key or Firebase token; entity keys are refused
+ *                    because the API rejects them on user-scoped routes
  *  - `firebase_only` Firebase token required (create/reveal of API keys)
  *  - `project`       project API key, for AI invocation
  *  - `none`          public route
  */
-export type AuthMode = "admin" | "firebase_only" | "project" | "none";
+export type AuthMode =
+  | "admin"
+  | "user"
+  | "firebase_only"
+  | "project"
+  | "none";
 
 export interface RequestOptions {
   auth?: AuthMode;
@@ -145,17 +157,33 @@ function buildHeaders(auth: AuthMode, apiKeyOverride?: string): Record<string, s
   const headers: Record<string, string> = { "Content-Type": "application/json" };
 
   if (auth === "admin") {
-    // Prefer the personal API key: it does not expire, so a long session keeps
-    // working without the user re-pasting a token.
+    // Prefer the entity key, then the personal key: neither expires, so a long
+    // session keeps working without the user re-pasting a token.
+    if (cfg.entityApiKey) {
+      headers["X-API-Key"] = cfg.entityApiKey;
+    } else if (cfg.apiKey) {
+      headers["X-API-Key"] = cfg.apiKey;
+    } else if (cfg.authToken) {
+      headers["Authorization"] = `Bearer ${cfg.authToken}`;
+    } else {
+      throw new Error(
+        "No ShapeShyft credential configured. Create an entity API key at https://shapeshyft.ai " +
+          "(Dashboard -> API Keys) or a personal API key (Dashboard -> Settings -> Personal API " +
+          "Keys), then run set_credentials with it. A Firebase ID token in SHAPESHYFT_AUTH_TOKEN " +
+          "also works."
+      );
+    }
+  } else if (auth === "user") {
+    // Refuse the entity key here rather than send one the API answers with a
+    // confusing 403: entity keys are scoped to entity-owned resources.
     if (cfg.apiKey) {
       headers["X-API-Key"] = cfg.apiKey;
     } else if (cfg.authToken) {
       headers["Authorization"] = `Bearer ${cfg.authToken}`;
     } else {
       throw new Error(
-        "No ShapeShyft credential configured. Create a personal API key at https://shapeshyft.ai " +
-          "(Dashboard -> Settings -> Personal API Keys), then run set_credentials with it. " +
-          "A Firebase ID token in SHAPESHYFT_AUTH_TOKEN also works."
+        "This route needs a personal API key (shyft_...) or a Firebase ID token. An entity API " +
+          "key authenticates as the entity and cannot act on a user's behalf."
       );
     }
   } else if (auth === "firebase_only") {

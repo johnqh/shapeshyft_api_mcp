@@ -58,6 +58,7 @@ src/
     ├── util.ts         # ok() / fail() / run() / compact() helpers
     ├── docs.ts         # describe_shapeshyft_api
     ├── config.ts       # get_configuration, set_credentials, clear_stored_credentials
+    ├── entity-apikeys.ts # list/create/update/revoke entity API keys (shyftent_...)
     ├── apikeys.ts      # get_current_user + personal API key CRUD (7 tools)
     ├── health.ts       # check_api_health, get_api_info
     ├── providers.ts    # list_providers, get_provider, list_provider_models
@@ -106,7 +107,8 @@ Resolution order: explicit tool argument → environment variable → config fil
 | Variable | Required | Description |
 |---|---|---|
 | `SHAPESHYFT_API_URL` | No | Base URL; default `https://api.shapeshyft.ai` |
-| `SHAPESHYFT_API_KEY` | For admin tools | Personal API key (`shyft_...`), never expires |
+| `SHAPESHYFT_ENTITY_API_KEY` | For entity-scoped tools | Entity API key (`shyftent_...`), acts as the entity, never expires |
+| `SHAPESHYFT_API_KEY` | For admin + user tools | Personal API key (`shyft_...`), acts as a user, never expires |
 | `SHAPESHYFT_AUTH_TOKEN` | Only create/reveal keys | Firebase ID token |
 | `SHAPESHYFT_PROJECT_API_KEY` | For AI tools | Project API key (`sk_live_...`) |
 | `SHAPESHYFT_ENTITY_SLUG` | No | Default entity slug |
@@ -244,9 +246,15 @@ are hand-mirrored, not generated.
 - **A `404` from an invocation can mean "inactive"**, not just "missing" — check
   `is_active` on both project and endpoint.
 - **Rate limits are per entity**, shared by every project and endpoint under it.
-- **Three credentials, two prefixes to remember**: `shyft_` personal (admin routes,
+- **Four credentials, three prefixes to remember**: `shyftent_` entity
+  (entity-scoped routes, `X-API-Key`), `shyft_` personal (admin + user routes,
   `X-API-Key`), `sk_live_` project (AI routes, `Authorization: Bearer`), and a
-  Firebase ID token (admin routes, `Authorization: Bearer`).
+  Firebase ID token (admin routes, `Authorization: Bearer`). The prefixes are
+  deliberately distinct: `shyftent_` does not start with `shyft_`, so the API
+  routes each to the right verifier.
+- **Entity keys cannot reach `/users/*` or manage API keys.** Both return 403 by
+  design, so a leaked key cannot act as its author or mint more of itself. The
+  `user` auth mode refuses to send one rather than provoke a confusing 403.
 - **`create_api_key` and `reveal_api_key` need a Firebase token.** The API returns
   403 for key-authenticated callers by design. The dashboard at shapeshyft.ai is
   the normal path for both.
