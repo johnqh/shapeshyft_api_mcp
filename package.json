@@ -1,6 +1,6 @@
 {
   "name": "@sudobility/shapeshyft_api_mcp",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "MCP server for the ShapeShyft API - lets AI assistants describe, configure, and invoke structured-output LLM endpoints",
   "type": "module",
   "license": "BUSL-1.1",

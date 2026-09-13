@@ -56,7 +56,7 @@ export function registerEndpointTools(server: McpServer) {
     "List the endpoints in a project " +
       "(GET /api/v1/entities/:entitySlug/projects/:projectId/endpoints). Each item includes uuid, " +
       "endpoint_name, http_method, llm_key_id, model, input/output schemas, instructions, context, " +
-      "is_active, ip_allowlist, and media settings.",
+      "is_active, ip_allowlist, temperature, and media settings.",
     { entitySlug: entitySlugArg, projectId: projectIdArg },
     async ({ entitySlug, projectId }) =>
       run(() => client.get(endpointsPath(entitySlug, projectId)))
@@ -131,6 +131,19 @@ export function registerEndpointTools(server: McpServer) {
         .boolean()
         .optional()
         .describe("Enable provider web search (only for models whose capabilities report webSearch)"),
+      temperature: z
+        .number()
+        .min(0)
+        .max(2)
+        .optional()
+        .describe(
+          "Sampling temperature. Omit to leave it to the provider, which is what every endpoint " +
+            "did before this existed: OpenAI, Gemini and Groq then default it to 0, while " +
+            "Anthropic omits it entirely because Opus 4.7+ and Sonnet 5 reject it. 0 is " +
+            "repeatable — the same prompt gives the same answer — and higher values are what " +
+            "make a generative endpoint produce something different each time. 0-2 is OpenAI's " +
+            "and Gemini's range; Anthropic's is 0-1 and it refuses more."
+        ),
       expects_media_output: mediaOutputArg,
       output_media_format: outputMediaFormatArg,
       transcription_extraction_model: z
@@ -173,6 +186,22 @@ export function registerEndpointTools(server: McpServer) {
         .optional()
         .describe("Allowed IPv4 addresses; null or empty means no restriction"),
       web_search: z.boolean().optional(),
+      /*
+        Nullable, unlike its neighbours: `null` clears the temperature and puts
+        the endpoint back to whatever its provider does by default, which is a
+        different request from "leave it alone" (omit). `compact` drops only
+        undefined, so the null survives the trip.
+      */
+      temperature: z
+        .number()
+        .min(0)
+        .max(2)
+        .nullable()
+        .optional()
+        .describe(
+          "Sampling temperature: 0 is repeatable, higher is more varied. Pass null to clear it " +
+            "and leave sampling to the provider. 0-2 for OpenAI and Gemini; Anthropic refuses above 1."
+        ),
       expects_media_output: mediaOutputArg,
       output_media_format: outputMediaFormatArg,
       transcription_extraction_model: z.string().optional(),
