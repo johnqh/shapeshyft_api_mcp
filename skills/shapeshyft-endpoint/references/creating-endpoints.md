@@ -16,6 +16,7 @@ Prerequisites for every recipe: an entity slug, an active LLM provider key
 | `display_name` | yes | Human-readable name for the dashboard |
 | `llm_key_id` | yes | UUID of the stored provider key |
 | `model` | no | Model id; omit to use the provider's default |
+| `temperature` | no | Sampling temperature, 0-2. Omit to leave it to the provider; `null` on an update clears it back to that |
 | `http_method` | no | `POST` (default, JSON body) or `GET` (query parameters) |
 | `context` | no | Standing system prompt sent with every call |
 | `instructions` | no | The task to perform on this input |

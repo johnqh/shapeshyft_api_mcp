@@ -271,6 +271,13 @@ Field roles, in the order they matter:
   documentation rather than a guard.
 - `http_method` — leave as POST unless the caller genuinely can only issue a GET.
   A mismatch at call time is a `405`.
+- `temperature` — 0-2, and omitted by default, which leaves the choice to the
+  provider. Set it only when the endpoint's job says which end it wants: an
+  extraction or classification endpoint wants 0, where the same input returning
+  the same answer is the feature, and a generative one wants a high value,
+  where two calls on one prompt returning the same text is the complaint. A
+  structured endpoint at a high temperature still has to satisfy its schema, so
+  raise it and re-run `invoke_endpoint` before trusting it.
 
 For media in or out, set the extra fields covered in
 `references/creating-endpoints.md`: media rides inside the normal payload as a
@@ -352,6 +359,9 @@ Read `describe_shapeshyft_api({ section: "errors" })` and match the symptom.
    - a field that is sometimes missing → add it to `required`
    - instructions describe the output format → move that into the schema instead
    - the model is small or old → try a stronger one from `list_provider_models`
+   - every call on one input returns the identical answer and the endpoint's job
+     is to invent something → raise `temperature`; the reverse (an extraction
+     that answers differently each time) is `temperature: 0`
 4. Apply with `update_endpoint`, then re-run `invoke_endpoint` on the same input
    and confirm the fix. Change one thing at a time.
 
