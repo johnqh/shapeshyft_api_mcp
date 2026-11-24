@@ -21,6 +21,14 @@ const providerIds = [
   "deepseek",
   "perplexity",
   "lm_studio",
+  "jev",
+  "openrouter",
+  // Image-generation providers
+  "bytedance",
+  "bfl",
+  "ideogram",
+  "recraft",
+  "stability",
 ] as const;
 
 const providerSchema = z

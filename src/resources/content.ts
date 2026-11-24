@@ -19,7 +19,11 @@ latency, and cost accounting.
 - Base path: \`/api/v1\` (health checks live outside it)
 - Production base URL: \`https://api.shapeshyft.ai\`
 - Supported providers: OpenAI, Anthropic, Google Gemini, Mistral, Cohere, Groq,
-  xAI, DeepSeek, Perplexity, and any OpenAI-compatible server via \`lm_studio\`
+  xAI, DeepSeek, Perplexity, Jev, OpenRouter, and any OpenAI-compatible server
+  via \`lm_studio\`
+- Image-generation providers: ByteDance Seedream, Black Forest Labs (FLUX),
+  Ideogram, Recraft, and Stability AI (used by endpoints whose output schema
+  declares an image field)
 
 ## The object hierarchy
 
