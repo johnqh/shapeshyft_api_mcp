@@ -29,6 +29,17 @@ const providerIds = [
   "ideogram",
   "recraft",
   "stability",
+  "fal",
+  "leonardo",
+  "luma",
+  "alibaba",
+  "runway",
+  // Video-generation providers
+  "kling",
+  "minimax",
+  "pika",
+  // Audio-generation provider
+  "elevenlabs",
 ] as const;
 
 const providerSchema = z

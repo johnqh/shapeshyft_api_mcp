@@ -22,8 +22,13 @@ latency, and cost accounting.
   xAI, DeepSeek, Perplexity, Jev, OpenRouter, and any OpenAI-compatible server
   via \`lm_studio\`
 - Image-generation providers: ByteDance Seedream, Black Forest Labs (FLUX),
-  Ideogram, Recraft, and Stability AI (used by endpoints whose output schema
-  declares an image field)
+  Ideogram, Recraft, Stability AI, fal.ai, Leonardo.ai, Luma, Alibaba
+  Qwen-Image, Runway, and xAI Grok Imagine (used by endpoints whose output
+  schema declares an image field)
+- Video-generation providers: Kling, MiniMax Hailuo, and Pika (endpoints whose
+  output schema declares a video field)
+- Audio-generation providers: ElevenLabs text-to-speech (endpoints whose output
+  schema declares an audio field)
 
 ## The object hierarchy
 
